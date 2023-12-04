@@ -2,6 +2,7 @@ package main
 import (
 	"fmt"
 	"unsafe"
+	"strconv"
 )
 
 func main() {
@@ -31,4 +32,45 @@ func main() {
 	fmt.Println(num10, num11, num12)
 	fmt.Println()
 	fmt.Println(unsafe.Sizeof(num9)) //🔥查看类型
+
+
+
+	// 类型转换 ——————————————————————————————————————————————————————————————————————————————————————————
+	// 基本类型（int、float、bool 等）转换为 str 类型
+	// int -> str
+	var n1 int = 19
+	var s1 string = fmt.Sprintf("%d", n1)
+	fmt.Printf("s1 的类型是: %T , s1 = %q \n", s1, s1)
+
+	// float -> str
+	var n2 float64 = 4.29
+	var s2 string = strconv.FormatFloat(n2, 'f', 9, 64) // ⚡️ f 表示转为十进制, 9 表示保留小数后 9 位, 64 表示 loar64 类型
+	fmt.Printf("s1 的类型是: %T , s2 = %q \n", s2, s2)
+
+	// bool -> str
+	var n3 bool = true
+	var s3 string = strconv.FormatBool(n3)
+	fmt.Printf("s3 的类型是: %T , s2 = %q \n", s3, s3)
+
+
+
+
+	// str 转为基本类型（int、float、bool 等）
+	// str -> bool
+	var s11 string = "true"
+	var b11 bool
+	b11, _ = strconv.ParseBool(s11) // 🔥 因为 ParseBool 的返回值有两个 => (value bool, err error), 所以用 b 跟 _ 来接收返回值
+	fmt.Printf("b11 的类型是: %T, b11 = %v \n", b11, b11)
+
+	// str -> int64
+	var s22 string = "19"
+	var num11 int64
+	num11 = strconv.parseInt(s22, 10, 64) // 10 表示十进制, 64 表示 int64
+	fmt.Printf("num11 的类型是: %T, num11 = %v \n", num11, num11)
+
+	// str -> float32 / float64
+	var s33 strint = "3.14"
+	var num22 float64
+	f1, _ = strconv.parseFloat(s33, 64) // 转为 float64 位, 🔥 因为 ParseFloat 的返回值有两个 => (value bool, err error), 所以用 f1 跟 _ 来接收返回值
+
 }

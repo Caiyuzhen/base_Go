@@ -1,6 +1,7 @@
 package main
 import "fmt"
 
+
 // 一次性声明多个全局变量
 var (
 	n8 = 999
@@ -28,7 +29,7 @@ func main() {
 	// 声明多个变量
 	var n1, n2, n3 int // 默认值为 0
 
-	height, weight := 177.8, 62.4 // 声明 + 赋值 + 自动类型推断
+	height, weight := 177, 62 // 声明 + 赋值 + 自动类型推断
 
 	fmt.Println(Pi, age, name, isTop, isBoy, n1, n2, n3, height, weight, n8, n9)
 }
