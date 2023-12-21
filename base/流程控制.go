@@ -40,6 +40,8 @@ func main() {
 
 	// switch 分支
 	var score float64 = 87
+
+	// switch 后面可以跟表达式
 	switch int(math.Floor(score/10)) { // math.Floor 向下取整, 否则 8.7 浮点数会匹配到不及格!
 		case 10:
 			fmt.Println("满分")
