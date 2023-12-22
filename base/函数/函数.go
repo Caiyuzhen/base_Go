@@ -75,7 +75,6 @@ func main() {
 	// 🌟 Case7: 自动识别返回值（不用关注返回值的顺序）
 	resAA, resBB := superTest(10.5, 20) // 输出: 9.5  30.5
 	fmt.Println("resAA :", resAA, "resBB :", resBB)
-
 }
 
 
