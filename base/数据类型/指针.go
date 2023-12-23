@@ -12,7 +12,7 @@ func main() {
 	var age int = 18
 	fmt.Println(&age)
 
-	// 【指针变量】, ptr 表示指针变量的名称 | 类型是 *int => 指针类型(指向 int 类型的指针) | 值为 &age
+	// 【指针变量】, ptr 表示指针变量的名称 | 类型是 *int => 指针类型(指向 int 类型的指针) | 值为 &age 这个地址
 	var ptr *int = &age
 	fmt.Println(ptr)
 	fmt.Println("ptr 这个指针变量的内存地址为:", &ptr)
@@ -24,4 +24,14 @@ func main() {
 	fmt.Println("通过指针改变后的指:", num)
 
 
+	a := 1
+    XX(&a) // 传递 a 的地址
+	fmt.Println(a) // 输出 2，a 被修改
+}
+
+
+
+
+func XX(b *int) {
+    *b = 2 // 修改指针指向的原始值
 }
