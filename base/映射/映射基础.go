@@ -132,7 +132,7 @@ func main() {
 
 
 
-	// 🌟 二维映射的【定义】跟【遍历】- 定义方式一
+	// 🌟 二维映射的【定义】- 方式一
 	aa := make(map[string]map[int]string) // value 也是一个 map
 	aa["班级1"] = make(map[int]string)
 	aa["班级1"][1] = "Kim"
@@ -145,17 +145,7 @@ func main() {
 	aa["班级2"][3] = "Annie"
 
 
-	for k1, v1 := range aa {
-		fmt.Println(k1) // 班级
-
-		for k2, v2 := range v1 {
-			fmt.Printf("学号为: %v 姓名为: %v \n", k2, v2) // 学号 姓名
-		}
-	}
-
-
-
-	// 🌟 定义方式二
+	// 🌟 二维映射的【定义】- 方式二
 	bb := map[string]map[int]string{
 		"班级1": {
 			1: "Kim",
@@ -170,5 +160,16 @@ func main() {
 	}
 	
 	fmt.Println(bb)
+
+
+	// 遍历二维映射
+	for k1, v1 := range aa {
+		fmt.Println(k1) // k1 为班级1 、 班级2, v1 为 map[int]string
+
+		for k2, v2 := range v1 { // 遍历 v1 , 也就是内层的 map
+			fmt.Printf("学号为: %v 姓名为: %v \n", k2, v2) // 学号 姓名
+		}
+	}
+
 	
 }
