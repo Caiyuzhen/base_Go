@@ -22,6 +22,6 @@ func  main() {
 
 
 type Student struct {
-	Name stringl
+	Name string
 	Age int
 }
