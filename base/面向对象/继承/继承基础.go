@@ -8,6 +8,43 @@ import ("fmt")
 
 	How?
 		在结构体内定义【匿名结构体】
+
+
+	TS 中的继承:
+		// 定义一个抽象类
+		abstract class Animal {
+			// 定义一个抽象方法，没有具体实现，必须在派生类中实现
+			abstract makeSound(): void;
+
+			// 定义一个普通方法，有具体的实现
+			move(): void {
+				console.log("roaming the earth...");
+			}
+		}
+
+		// 定义一个派生类，继承自Animal
+		class Dog extends Animal {
+			// 实现父类中的抽象方法
+			makeSound() {
+				console.log("Woof! Woof!");
+			}
+		}
+
+	Python 中的继承:
+		from abc import ABC, abstractmethod
+
+		class Animal(ABC):
+			@abstractmethod
+			def move(self):
+				pass
+
+		class Human(Animal):
+			def move(self):
+				print("我可以走和跑")
+
+		class Fish(Animal):
+			def move(self):
+				print("我可以游泳")
 */
 
 func main() {
