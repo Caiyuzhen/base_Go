@@ -54,7 +54,7 @@ func main() {
 	go add()
 	go reduce()
 
-	// 阻塞主进程
+	// 🚀🚀 阻塞主进程, 直到 waitGroup 为 0 为止
 	waitGroup.Wait()
 
 	// 打印
