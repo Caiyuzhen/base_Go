@@ -18,6 +18,7 @@ func testReflect(i interface{}) {
 
 
 	// 🔥【让反射的 value 可用的方法二】先将Value 转为空接口
+	// 将值转为空接口, 再去取值
 	i2 := rValue.Interface() // ⚠️ 因为 i 在上方已经被转为 interface{} 空接口了, 所以这里需要再转一次 ⚠️
 
 	// 将空接口断言为 string 类型, 用 x 接收

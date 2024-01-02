@@ -52,7 +52,7 @@ func main() {
 
 	// 🔥 给切片追加【切片】
 	slicesXXX := arr [1:2] // 2
-	slicesArr = append(slicesArr, slicesXXX...) // 把 slicesXXX 切片追加到 slicesArr 切片中
+	slicesArr = append(slicesArr, slicesXXX...) // 把 slicesXXX 切片追加到 slicesArr 切片中, slicesXXX... 表示把剩余的数都放进去
 	fmt.Println("追加后的切片数据 = ", slicesArr) // [2 3 4 5 88 99 2] => 2 是 slicesXXX 切片中的元素
 
 	// 🔥 减少切片内的元素 => 使用切片去切切片
