@@ -2,10 +2,12 @@ package main
 
 import (
 	// "fmt"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"regexp" // 正则表达式, 避免注入攻击 (用户随意输入 url 来访问服务器文件)
 	"text/template"
 )
 
@@ -43,12 +45,21 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("有人访问了这个地址: ", r.URL.Path) // 打印日志, 说明有人访问了这个地址
 
 	// 👇 加载数据, 放入结构体 => 把结构体内的数据 => 渲染到 html 上
-	title := r.URL.Path[len("/view/"):]
+	// title := r.URL.Path[len("/view/"):] // ⚠️ 不安全的方式
+	title, err := getValidTitle(w, r) // 💪 安全的方式
+	if err != nil {
+		return
+	}
 	p, error := loadPageData(title) // _ 忽略错误 => 🌟 loadPageData 函数会返回 (*Page, error) , 分别是【页面内容】和【错误信息】viewHandler
 	if error != nil {
-		// http.NotFound(w, r)                                          // 如果页面不存在, 则返回 404 状态码
-		http.Error(w, error.Error(), http.StatusInternalServerError) // 如果有错误, 则返回 500 状态码
-		return
+		if os.IsNotExist(error) {// 🚀 如果 url 内输入的标题 没有对应的文件, 则重定向到编辑页
+			http.Redirect(w, r, "/edit/" + title, http.StatusFound)
+			return
+		} else {
+			// 如果是其他错误, 则返回 500
+			http.Error(w, error.Error(), http.StatusInternalServerError) // 如果有错误, 则返回 500 状态码
+			return
+		}
 	}
 
 	// 【方法一】使用 html 模板渲染页面
@@ -67,7 +78,11 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 // 🌟 edit 视图路由 __________________________________________________________________________________________________
 // 在 // 访问 http://localhost:8080/edit/foo 
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/edit/"):] // 获取页面标题（用标题读取页面.txt文件）) => len("/view/")将会返回6，因为字符串"/view/"有6个字符, 所以切片从第 6 个字符开始截取
+	title := r.URL.Path[len("/edit/"):] //  ⚠️ 不安全的方式  => 获取页面标题（用标题读取页面.txt文件）) => len("/view/")将会返回6，因为字符串"/view/"有6个字符, 所以切片从第 6 个字符开始截取
+	title, err := getValidTitle(w, r) // 💪 安全的方式
+	if err != nil {
+		return
+	}
 	p, error := loadPageData(title)
 	if error != nil {
 		p = &Page{Title: title} // ⚠️ 如果页面不存在, 则创建一个新的 Page 实例
@@ -85,8 +100,11 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 
 // 抽象出读取 html 模板的方法
+var templates = template.Must(template.ParseFiles("html/editPage.html", "html/viewPage.html")) // 🌟【第一步】The Best（更高效的读取 ParseFiles) => 在初始化时解析所有模板文件
+
 func readTemplate(w http.ResponseWriter, tempName string, p *Page) {
-	t, error := template.ParseFiles("html/" + tempName + ".html")
+	// t, error := template.ParseFiles("html/" + tempName + ".html") // 🍚 基础方式, 不够高效
+	error := templates.ExecuteTemplate(w, tempName + ".html", p) // 🌟 【第二步】 高效方式, 在初始化时解析模板, 直接从内存中读取
 	// 打印模板加载路径
 	log.Println("模板加载路径: ", "html/" + tempName + ".html")
 
@@ -94,20 +112,44 @@ func readTemplate(w http.ResponseWriter, tempName string, p *Page) {
 		http.Error(w, "模板加载错误", http.StatusInternalServerError)
 		return
 	}
-	t.Execute(w, p)
+	// t.Execute(w, p) // 🌟【第二步】不用在访存了, 因为👆上一步已经在内存中读取了
 }
 
 
 
 // 🌟 save 编辑数据层的路由, 把 edit 页提交上来的路由进行储存 __________________________________________________________________________________________________
 func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/save/"):]          // 从 URL 中获取页面标题
+	title := r.URL.Path[len("/save/"):]  //  ⚠️ 不安全的方式  =>  从 URL 中获取页面标题
+	title, error := getValidTitle(w, r) // 💪 安全的方式
+	if error != nil {
+		return
+	}
+	fmt.Printf("获得了标题: %v \n", title)
+
 	body := r.FormValue("body")                  // 从 r 中获取 body 的值(对方会发送一个表单类型的 http 请哦去)
 	p := &Page{Title: title, Body: []byte(body)} // 创建一个 Page 实例
-	p.savePage()                                 // 保存页面 => 🔥 调用结构体内的方法
-	fmt.Fprintf(w, "页面数据 %s 保存成功! ", title)   // 返回一个成功信息
-	// 重定向回 view 页面
-	// http.Redirect(w, r, "/view/" + title, http.StatusFound) // 重定向到 view 页面, StatusFound 表示 302 状态码
+	err := p.savePage()                                 // 保存页面 => 🔥 调用结构体内的方法
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError) // 保存文件出错的情况
+		return
+	}
+	// fmt.Fprintf(w, "页面数据 %s 保存成功! ", title)   // 返回一个成功信息
+	http.Redirect(w, r, "/view/" + title, http.StatusFound) // 🌟 重定向到 view 页面(去看看保存后的页面), StatusFound 表示 302 状态码
+}
+
+
+
+
+// 👇提升安全性, 验证标题的合法性
+var VALID_PATH = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$") // 用户输入的 url 必须包含这三个字符串, 避免用户从 url 的注入工具
+
+func getValidTitle(w http.ResponseWriter, r *http.Request) (string, error) {
+	m := VALID_PATH.FindStringSubmatch(r.URL.Path) // FindStringSubmatch 会返回一个字符串切片
+	if m == nil {
+		http.NotFound(w, r)
+		return "", errors.New("输入了非法路径") // 因为上方定义了要返回  (string, error)
+	}
+	return  m[2], nil // title 在下标 2  // 上方定义了要返回  (string, error)
 }
 
 
